@@ -23,19 +23,35 @@
             border-radius: 10px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
         }
+        button {
+            position: absolute;
+            bottom: 20px;
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
     <video id="video" width="640" height="480" autoplay muted></video>
     <canvas id="canvas"></canvas>
+    <button id="switchCamera">Switch Camera</button>
 
     <script>
         const video = document.getElementById("video");
         const canvas = document.getElementById("canvas");
         const ctx = canvas.getContext("2d");
+        const switchCameraBtn = document.getElementById("switchCamera");
+        let currentFacingMode = "environment";
 
-        async function setupCamera() {
-            const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        async function setupCamera(facingMode = "environment") {
+            const stream = await navigator.mediaDevices.getUserMedia({
+                video: { facingMode }
+            });
             video.srcObject = stream;
             return new Promise((resolve) => {
                 video.onloadedmetadata = () => {
@@ -72,6 +88,14 @@
             }
             detectFrame();
         }
+
+        switchCameraBtn.addEventListener("click", async () => {
+            currentFacingMode = currentFacingMode === "user" ? "environment" : "user";
+            const stream = await navigator.mediaDevices.getUserMedia({
+                video: { facingMode: currentFacingMode }
+            });
+            video.srcObject = stream;
+        });
 
         setupCamera().then(detectObjects);
     </script>
